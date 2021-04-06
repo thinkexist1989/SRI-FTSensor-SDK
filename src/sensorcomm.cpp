@@ -21,23 +21,4 @@ Shenyang Institute of Automation, Chinese Academy of Sciences.
 @Created on: 2021.04.06
 */
 
-#ifndef SRI_FTSENSOR_SDK_SRI_SENSOR_H
-#define SRI_FTSENSOR_SDK_SRI_SENSOR_H
-
-#include <sri/sensorcomm.h>
-#include <sri/sensorproto.h>
-#include <memory>
-
-namespace SRI {
-    class FTSensor {
-    public:
-        FTSensor();
-    private:
-        std::shared_ptr<SensorComm> commPtr;
-        std::shared_ptr<SensorProto> protoPtr;
-
-    }; // class FTSensor
-} //namespace SRI
-
-
-#endif //SRI_FTSENSOR_SDK_SRI_SENSOR_H
+#include "sri/sensorcomm.h"
