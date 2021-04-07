@@ -25,13 +25,13 @@ Shenyang Institute of Automation, Chinese Academy of Sciences.
 #define SRI_FTSENSOR_SDK_SRI_SENSOR_H
 
 #include <sri/sensorcomm.h>
+#include <sri/commethernet.h>
 #include <sri/types.h>
 
 #include <memory>
 
 
 namespace SRI {
-
     class FTSensor {
     public:
         FTSensor();

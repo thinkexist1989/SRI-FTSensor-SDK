@@ -24,17 +24,30 @@ Shenyang Institute of Automation, Chinese Academy of Sciences.
 #ifndef SRI_FTSENSOR_SDK_SENSORCOMM_H
 #define SRI_FTSENSOR_SDK_SENSORCOMM_H
 
+#include <vector>
+
 namespace SRI {
     class SensorComm {
     public:
-        bool isValid(); // Get the valid status of the sensor
+        virtual bool isValid();        // Get the valid status of the sensor
 
-    protected:
+        virtual bool initialize();     // Initialize the communication
+
+        /// Write Data Buffer to Sensor
+        /// \param buf The data need to send
+        /// \return       The number of chars have been sent
+        virtual size_t write(std::vector<char>& buf);
+
+        /// Read Data Buffer from Sensor
+        /// \param[out] buf The data received
+        /// \return            The number of chars have been received
+        virtual size_t read(std::vector<char>& buf);
+
         SensorComm();
 
-        virtual ~SensorComm() = 0;
+        virtual ~SensorComm();     // Pure virtual deconstructor for polymorphism
 
-        bool _validStatus = false;
+        bool _validStatus = false;     // The status of the communication with the sensor
 
     }; // class SensorComm
 } //namespace SRI

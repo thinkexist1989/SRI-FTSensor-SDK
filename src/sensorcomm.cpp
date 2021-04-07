@@ -22,3 +22,32 @@ Shenyang Institute of Automation, Chinese Academy of Sciences.
 */
 
 #include "sri/sensorcomm.h"
+
+namespace SRI {
+
+    SensorComm::SensorComm() {
+
+    }
+
+    SensorComm::~SensorComm() {
+    }
+
+    bool SensorComm::isValid() {
+        return false;
+    }
+
+    bool SensorComm::initialize() {
+        return false;
+    }
+
+    size_t SensorComm::write(std::vector<char> &buf) {
+        return 0;
+    }
+
+    size_t SensorComm::read(std::vector<char> &buf) {
+        return 0;
+    }
+
+} //namespace SRI
+
+

@@ -12,5 +12,11 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 file(GLOB SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/*)
 
 add_library(SRIftsensor ${SRC})
+add_library(SRI::FTSensor ALIAS SRIftsensor)
 target_include_directories(SRIftsensor PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(SRIftsensor Boost::system)
+
+
+
+
+add_subdirectory(examples)

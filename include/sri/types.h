@@ -33,8 +33,8 @@ namespace SRI {
     const std::string AT = "AT+";     // Frame Header when sending data.
     const std::string ACK = "ACK+";    // Frame Header when receiving data.
     /* RESPONSE CODE */
-    const std::string OK = "OK";      // Response code，OK
-    const std::string ERROR = "ERROR";   // Response code，ERROR
+    const std::string RES_OK = "OK";      // Response code，OK
+    const std::string RES_ERROR = "ERROR";   // Response code，ERROR
     /* CONFIGURATIONS COMMAND */
     const std::string UARTCFG = "UARTCFG"; // (RW) To read or set parameters of RS232
     const std::string CRATE = "CRATE";   // (RW) To read or set baud rate of CAN Bus
