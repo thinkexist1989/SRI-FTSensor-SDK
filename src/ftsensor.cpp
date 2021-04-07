@@ -23,3 +23,39 @@ Shenyang Institute of Automation, Chinese Academy of Sciences.
 
 
 #include "sri/ftsensor.h"
+#include <iostream>
+#include <algorithm>
+
+namespace SRI {
+
+    FTSensor::FTSensor(SensorComm *pcomm) : commPtr(pcomm) {
+//        commPtr->initialize();
+    }
+
+    std::string FTSensor::generateCommandBuffer(const std::string &command,
+                                                const std::string &parameter) {
+        return AT + command + "=" + parameter + "\r\n";
+    }
+
+    std::string FTSensor::extractResponseBuffer(std::vector<char> &buf,
+                                                const std::string &command,
+                                                const std::string &parameter) {
+        std::string s(buf.data(), buf.size());
+
+        if (s.find(ACK) != 0)
+            return "";
+        if (s.find(command) == s.npos)
+            return "";
+
+        if(parameter == "?")
+            return s.substr(s.find("=") + 1, s.find("\r\n"));
+        else
+            return s.substr(s.find("$") + 1, s.find("\r\n"));
+
+    }
+
+    IpAddr FTSensor::getIpAddress() {
+        return SRI::IpAddr();
+    }
+
+} //namespace SRI

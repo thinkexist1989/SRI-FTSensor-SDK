@@ -25,7 +25,6 @@ Shenyang Institute of Automation, Chinese Academy of Sciences.
 #define SRI_FTSENSOR_SDK_SRI_SENSOR_H
 
 #include <sri/sensorcomm.h>
-#include <sri/commethernet.h>
 #include <sri/types.h>
 
 #include <memory>
@@ -34,11 +33,63 @@ Shenyang Institute of Automation, Chinese Academy of Sciences.
 namespace SRI {
     class FTSensor {
     public:
-        FTSensor();
+        explicit FTSensor(SensorComm* pcomm);
+
+        IpAddr      getIpAddress();
+        bool        setIpAddress(IpAddr& ip);
+
+        MacAddr     getMacAddress();
+        bool        setMacAddress(MacAddr& mac);
+
+        GateAddr    getGateWay();
+        bool        setGateWay(GateAddr& gate);
+
+        NetMask     getNetMask();
+        bool        setNetMask(NetMask& mask);
+
+        Gains       getChannelGains();
+
+        SampleRate  getSamplingRate();
+        bool        setSamplingRate(SampleRate rate);
+
+        Voltages    getExcitationVoltages();
+
+        Sensitivities getSensorSensitivities();
+        bool          setSensorSensitivities(Sensitivities& sens);
+
+        Offsets     getAmplifierZeroOffsets();
+        bool        setAmplifierZeroOffsets(Offsets& offsets);
+
+        RTDataMode  getRealTimeDataMode();
+        bool        setRealTimeDataMode(RTDataMode& rtDataMode);
+
+        RTDataValid getRealTimeDataValid();
+        bool        setRealTimeDataValid(RTDataValid& rtDataValid);
+
+        RTData      getRealTimeDataOnce();
+
+        void        startRealTimeDataRepeatedly(); // this function need a callback function
+        void        stopRealTimeDataRepeatedly();
+
+    public: // for test, need to be change to private
+        std::shared_ptr<SensorComm> commPtr; //store the polymorphic pointer of communication
+        bool isRepeatedly = false; // if start RT Data Repeatedly, set true
+
+        /// Generate Command Buffer
+        /// \param[in] Command      The CMD such as UARTCFG.
+        /// \param[in] parameter    The parameters of the command.
+        /// \return                 command buffer(string format).
+        std::string generateCommandBuffer(const std::string &command, const std::string &parameter);
+
+        /// Extract Response Buffer
+        /// \param[in] recvbuf          The reference of received buffer.
+        /// \param[in] expect_command   The expected command.
+        /// \return                     The response from sensor(string format)
+        std::string extractResponseBuffer(std::vector<char> &buf,
+                                          const std::string &command,
+                                          const std::string &parameter);
 
 
-    private:
-        std::shared_ptr<SensorComm> commPtr;
 
     }; // class FTSensor
 } //namespace SRI
