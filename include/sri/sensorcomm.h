@@ -26,10 +26,16 @@ Shenyang Institute of Automation, Chinese Academy of Sciences.
 
 namespace SRI {
     class SensorComm {
+    public:
+        bool isValid(); // Get the valid status of the sensor
+
     protected:
         SensorComm();
 
         virtual ~SensorComm() = 0;
+
+        bool _validStatus = false;
+
     }; // class SensorComm
 } //namespace SRI
 

@@ -74,13 +74,20 @@ namespace SRI {
         static std::shared_ptr<SensorProto> getInstance();
 
         /// Generate Command Buffer
-        /// \param dest The incoming reference of command buffer.
-        /// \param Command The CMD such as UARTCFG.
-        /// \param parameter The parameters of the command.
-        /// \return true if succeed
-        bool generateCommandBuffer(std::vector<char> &dest,
-                                   std::string &command,
-                                   std::string &parameter);
+        /// \param[in] Command      The CMD such as UARTCFG.
+        /// \param[in] parameter    The parameters of the command.
+        /// \return                 command buffer(string format).
+        std::string generateCommandBuffer(std::string &command, std::string &parameter);
+
+        /// Extract Response Buffer
+        /// \param[in] recvbuf          The reference of received buffer.
+        /// \param[in] expect_command   The expected command.
+        /// \return                     The response from sensor(string format)
+        std::string extractResponseBuffer(std::vector<char> &recvbuf,
+                                          std::string &command,
+                                          std::string &parameter);
+
+
 
     private:
         static std::shared_ptr<SensorProto> _instance;

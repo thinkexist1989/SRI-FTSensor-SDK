@@ -37,12 +37,5 @@ namespace SRI {
         return _instance->shared_from_this();
     }
 
-    bool SensorProto::generateCommandBuffer(std::vector<char> &dest,
-                                            std::string &command,
-                                            std::string &parameter) {
-
-        return false;
-    }
-
 
 } //namespace SRI
