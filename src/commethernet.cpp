@@ -12,6 +12,7 @@ namespace SRI {
         _port = port;
         _endpoint.address(_ip);
         _endpoint.port(_port);
+
     }
 
     CommEthernet::~CommEthernet() {
@@ -40,7 +41,45 @@ namespace SRI {
         return _socket.write_some(buffer(buf));
     }
 
+    size_t CommEthernet::write(char *buf, size_t n) {
+        if (!_socket.is_open()) {
+            _validStatus = false;
+            return 0;
+        }
+        return _socket.write_some(buffer(buf, n));
+    }
+
+    size_t CommEthernet::write(const std::string &buf) {
+        if (!_socket.is_open()) {
+            _validStatus = false;
+            return 0;
+        }
+        return _socket.write_some(buffer(buf));
+    }
+
     size_t CommEthernet::read(std::vector<char> &buf) {
+        if (!_socket.is_open()) {
+            _validStatus = false;
+            return 0;
+        }
+
+        buf.resize(available());
+
+        return _socket.read_some(buffer(buf));
+    }
+
+    size_t CommEthernet::read(char *buf, size_t n) {
+        if (!_socket.is_open()) {
+            _validStatus = false;
+            return 0;
+        }
+
+        size_t num = n < available() ? n : available();
+
+        return _socket.read_some(buffer(buf, num));
+    }
+
+    size_t CommEthernet::read(std::string &buf) {
         if (!_socket.is_open()) {
             _validStatus = false;
             return 0;

@@ -28,6 +28,7 @@ Shenyang Institute of Automation, Chinese Academy of Sciences.
 #include <sri/types.h>
 
 #include <memory>
+#include <regex>
 
 
 namespace SRI {
@@ -36,35 +37,35 @@ namespace SRI {
         explicit FTSensor(SensorComm* pcomm);
 
         IpAddr      getIpAddress();
-        bool        setIpAddress(IpAddr& ip);
+        bool        setIpAddress(const IpAddr &ip);
 
         MacAddr     getMacAddress();
-        bool        setMacAddress(MacAddr& mac);
+        bool        setMacAddress(const MacAddr &mac);
 
         GateAddr    getGateWay();
-        bool        setGateWay(GateAddr& gate);
+        bool        setGateWay(const GateAddr &gate);
 
         NetMask     getNetMask();
-        bool        setNetMask(NetMask& mask);
+        bool        setNetMask(const NetMask &mask);
 
         Gains       getChannelGains();
 
         SampleRate  getSamplingRate();
-        bool        setSamplingRate(SampleRate rate);
+        bool        setSamplingRate(const SampleRate rate);
 
         Voltages    getExcitationVoltages();
 
         Sensitivities getSensorSensitivities();
-        bool          setSensorSensitivities(Sensitivities& sens);
+        bool          setSensorSensitivities(const Sensitivities &sens);
 
         Offsets     getAmplifierZeroOffsets();
-        bool        setAmplifierZeroOffsets(Offsets& offsets);
+        bool        setAmplifierZeroOffsets(const Offsets &offsets);
 
         RTDataMode  getRealTimeDataMode();
-        bool        setRealTimeDataMode(RTDataMode& rtDataMode);
+        bool        setRealTimeDataMode(const RTDataMode &rtDataMode);
 
         RTDataValid getRealTimeDataValid();
-        bool        setRealTimeDataValid(RTDataValid& rtDataValid);
+        bool        setRealTimeDataValid(const RTDataValid &rtDataValid);
 
         RTData      getRealTimeDataOnce();
 
@@ -88,7 +89,6 @@ namespace SRI {
         std::string extractResponseBuffer(std::vector<char> &buf,
                                           const std::string &command,
                                           const std::string &parameter);
-
 
 
     }; // class FTSensor

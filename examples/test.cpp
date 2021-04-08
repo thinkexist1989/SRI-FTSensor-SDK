@@ -23,6 +23,18 @@ int main() {
     std::string res = sensor.extractResponseBuffer(buf, EIP, "127.0.0.1");
     std::cout << res << std::endl;
 
+//    std::cout << "IP Address: " << sensor.getIpAddress() << std::endl;
+
+//    std::cout << sensor.setIpAddress("192.168.3.3") << std::endl;
+
+    Gains gains = sensor.getChannelGains();
+    for(auto& gain : gains) {
+        std::cout << gain << " ; ";
+    }
+    std::cout << std::endl;
+
+
+
 
 //    std::string s = "Hello World!";
 //    std::vector<char> buf;

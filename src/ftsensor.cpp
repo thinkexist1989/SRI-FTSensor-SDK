@@ -25,11 +25,14 @@ Shenyang Institute of Automation, Chinese Academy of Sciences.
 #include "sri/ftsensor.h"
 #include <iostream>
 #include <algorithm>
+#include <thread>
+#include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
 
 namespace SRI {
 
     FTSensor::FTSensor(SensorComm *pcomm) : commPtr(pcomm) {
-//        commPtr->initialize();
+        commPtr->initialize();
     }
 
     std::string FTSensor::generateCommandBuffer(const std::string &command,
@@ -55,7 +58,137 @@ namespace SRI {
     }
 
     IpAddr FTSensor::getIpAddress() {
-        return SRI::IpAddr();
+        commPtr->write(generateCommandBuffer(EIP, "?"));
+        while (commPtr->available() == 0) {
+            std::this_thread::sleep_for(std::chrono::microseconds(500));
+        }
+        std::vector<char> recvbuf;
+        commPtr->read(recvbuf);
+        std::string response = extractResponseBuffer(recvbuf, EIP, "?");
+
+        return response;
     }
+
+    bool FTSensor::setIpAddress(const IpAddr &ip) {
+        commPtr->write(generateCommandBuffer(EIP, ip));
+        while (commPtr->available() == 0) {
+            std::this_thread::sleep_for(std::chrono::microseconds(500));
+        }
+        std::vector<char> recvbuf;
+        commPtr->read(recvbuf);
+        std::string response = extractResponseBuffer(recvbuf, EIP, ip);
+
+        if (response == "OK")
+            return true;
+        else
+            return false;
+    }
+
+    MacAddr FTSensor::getMacAddress() {
+        commPtr->write(generateCommandBuffer(EMAC, "?"));
+        while (commPtr->available() == 0) {
+            std::this_thread::sleep_for(std::chrono::microseconds(500));
+        }
+        std::vector<char> recvbuf;
+        commPtr->read(recvbuf);
+        std::string response = extractResponseBuffer(recvbuf, EMAC, "?");
+
+        return response;
+    }
+
+    bool FTSensor::setMacAddress(const MacAddr &mac) {
+        commPtr->write(generateCommandBuffer(EMAC, mac));
+        while (commPtr->available() == 0) {
+            std::this_thread::sleep_for(std::chrono::microseconds(500));
+        }
+        std::vector<char> recvbuf;
+        commPtr->read(recvbuf);
+        std::string response = extractResponseBuffer(recvbuf, EIP, mac);
+
+        if (response == "OK")
+            return true;
+        else
+            return false;
+    }
+
+    GateAddr FTSensor::getGateWay() {
+        commPtr->write(generateCommandBuffer(EGW, "?"));
+        while (commPtr->available() == 0) {
+            std::this_thread::sleep_for(std::chrono::microseconds(500));
+        }
+        std::vector<char> recvbuf;
+        commPtr->read(recvbuf);
+        std::string response = extractResponseBuffer(recvbuf, EGW, "?");
+
+        return response;
+    }
+
+    bool FTSensor::setGateWay(const GateAddr &gate) {
+        commPtr->write(generateCommandBuffer(EMAC, gate));
+        while (commPtr->available() == 0) {
+            std::this_thread::sleep_for(std::chrono::microseconds(500));
+        }
+        std::vector<char> recvbuf;
+        commPtr->read(recvbuf);
+        std::string response = extractResponseBuffer(recvbuf, EMAC, gate);
+
+        if (response == "OK")
+            return true;
+        else
+            return false;
+    }
+
+    NetMask FTSensor::getNetMask() {
+        commPtr->write(generateCommandBuffer(ENM, "?"));
+        while (commPtr->available() == 0) {
+            std::this_thread::sleep_for(std::chrono::microseconds(500));
+        }
+        std::vector<char> recvbuf;
+        commPtr->read(recvbuf);
+        std::string response = extractResponseBuffer(recvbuf, ENM, "?");
+
+        return response;
+    }
+
+    bool FTSensor::setNetMask(const NetMask &mask) {
+        commPtr->write(generateCommandBuffer(ENM, mask));
+        while (commPtr->available() == 0) {
+            std::this_thread::sleep_for(std::chrono::microseconds(500));
+        }
+        std::vector<char> recvbuf;
+        commPtr->read(recvbuf);
+        std::string response = extractResponseBuffer(recvbuf, ENM, mask);
+
+        if (response == "OK")
+            return true;
+        else
+            return false;
+    }
+
+    Gains FTSensor::getChannelGains() {
+        commPtr->write(generateCommandBuffer(CHNAPG, "?"));
+        while (commPtr->available() == 0) {
+            std::this_thread::sleep_for(std::chrono::microseconds(500));
+        }
+        std::vector<char> recvbuf;
+        commPtr->read(recvbuf);
+        std::string response = extractResponseBuffer(recvbuf, CHNAPG, "?");
+
+        std::vector<std::string> resInString;
+        try {
+            boost::split(resInString, response, boost::is_any_of(";"));
+        }
+        catch (boost::bad_lexical_cast& e) {
+            std::cout << "ERROR::FTSensor::getChannelGains():" << e.what() << std::endl;
+        }
+        Gains gains;
+
+        for(auto& res : resInString) {
+            gains.push_back(stof(res));
+        }
+
+        return gains;
+    }
+
 
 } //namespace SRI

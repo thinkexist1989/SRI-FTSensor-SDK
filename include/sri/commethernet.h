@@ -41,17 +41,25 @@ namespace SRI {
     public:
         CommEthernet(std::string ip = "192.168.1.108", uint16_t port = 4008);
 
+        ~CommEthernet() override;
+
         bool isValid() override;
 
         bool initialize() override;
 
         size_t write(std::vector<char> &buf) override;
 
+        size_t write(const std::string &buf) override;
+
+        size_t write(char *buf, size_t n) override;
+
         size_t read(std::vector<char> &buf) override;
 
-        ~CommEthernet() override;
+        size_t read(char *buf, size_t n) override;
 
-        size_t available();
+        size_t read(std::string &buf) override;
+
+        size_t available() override;
 
         std::string getRemoteAddress();
 

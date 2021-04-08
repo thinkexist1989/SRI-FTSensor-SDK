@@ -48,6 +48,26 @@ namespace SRI {
         return 0;
     }
 
+    size_t SensorComm::write(const std::string &buf) {
+        return 0;
+    }
+
+    size_t SensorComm::read(std::string &buf) {
+        return 0;
+    }
+
+    size_t SensorComm::write(char *buf, size_t n) {
+        return 0;
+    }
+
+    size_t SensorComm::read(char *buf, size_t n) {
+        return 0;
+    }
+
+    size_t SensorComm::available() {
+        return 0;
+    }
+
 } //namespace SRI
 
 

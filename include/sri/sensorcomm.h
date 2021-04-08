@@ -25,6 +25,7 @@ Shenyang Institute of Automation, Chinese Academy of Sciences.
 #define SRI_FTSENSOR_SDK_SENSORCOMM_H
 
 #include <vector>
+#include <string>
 
 namespace SRI {
     class SensorComm {
@@ -37,11 +38,17 @@ namespace SRI {
         /// \param buf The data need to send
         /// \return       The number of chars have been sent
         virtual size_t write(std::vector<char>& buf);
+        virtual size_t write(const std::string &buf);
+        virtual size_t write(char* buf, size_t n);
 
         /// Read Data Buffer from Sensor
         /// \param[out] buf The data received
         /// \return            The number of chars have been received
         virtual size_t read(std::vector<char>& buf);
+        virtual size_t read(std::string& buf);
+        virtual size_t read(char* buf, size_t n);
+
+        virtual size_t available();
 
         SensorComm();
 
