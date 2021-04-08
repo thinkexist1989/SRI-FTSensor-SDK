@@ -51,7 +51,7 @@ namespace SRI {
         Gains       getChannelGains();
 
         SampleRate  getSamplingRate();
-        bool        setSamplingRate(const SampleRate rate);
+        bool        setSamplingRate(SampleRate rate);
 
         Voltages    getExcitationVoltages();
 
@@ -67,7 +67,8 @@ namespace SRI {
         RTDataValid getRealTimeDataValid();
         bool        setRealTimeDataValid(const RTDataValid &rtDataValid);
 
-        RTData      getRealTimeDataOnce();
+        template<typename T>
+        std::vector<RTData<T>> getRealTimeDataOnce(const RTDataMode& rtMode = RTDataMode(), const RTDataValid& rtValid = "SUM");
 
         void        startRealTimeDataRepeatedly(); // this function need a callback function
         void        stopRealTimeDataRepeatedly();

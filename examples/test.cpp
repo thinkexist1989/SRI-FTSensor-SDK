@@ -35,20 +35,24 @@ int main() {
 //    Sensitivities sens = {123.321, 234.432, 345.543, 654.234, 234.53};
 //    std::cout << sensor.setSensorSensitivities(sens) << std::endl;
 
-      auto rtMode = sensor.getRealTimeDataMode();
-      for(auto& c : rtMode.channelOrder) {
-          std::cout << c << " , ";
-      }
-      std:: cout << std::endl;
+//      auto rtMode = sensor.getRealTimeDataMode();
+//      for(auto& c : rtMode.channelOrder) {
+//          std::cout << c << " , ";
+//      }
+//      std:: cout << std::endl;
+//
+//      std::cout << "DataUnit: " << rtMode.DataUnit << std::endl;
+//      std::cout << "PNpCH: " << rtMode.PNpCH << std::endl;
+//      std::cout << "FM: " << rtMode.FM  << std::endl;
+//
+//      for(auto& w : rtMode.filterWeights) {
+//          std::cout << w << " , ";
+//      }
+//      std::cout << std::endl;
 
-      std::cout << "DataUnit: " << rtMode.DataUnit << std::endl;
-      std::cout << "PNpCH: " << rtMode.PNpCH << std::endl;
-      std::cout << "FM: " << rtMode.FM  << std::endl;
+    RTDataMode rtDataMode;
+    std::cout << sensor.setRealTimeDataMode(rtDataMode) << std::endl;
 
-      for(auto& w : rtMode.filterWeights) {
-          std::cout << w << " , ";
-      }
-      std::cout << std::endl;
 
 
 //    std::string s = "Hello World!";

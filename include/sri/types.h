@@ -96,10 +96,10 @@ namespace SRI {
 
     /* REAL-TIME DATA TYPE DEFINES */
     struct RTDataMode {
-        std::vector<uint16_t> channelOrder = {1,2,3,4,5,6}; // The relevant analog channels.
-        char DataUnit;     // The unit of data uploaded from M8128.
-        // E, V, M or C which denote Engineering unit, mV/V, mV or AD Counts respectively.
-        uint16_t PNpCH;        // Number of data which are desired.
+        std::vector<uint16_t> channelOrder = {1, 2, 3, 4, 5, 6}; // The relevant analog channels.
+        char DataUnit = 'C';     // The unit of data uploaded from M8128.
+                                 // E, V, M or C which denote Engineering unit, mV/V, mV or AD Counts respectively.
+        uint16_t PNpCH = 1;        // Number of data which are desired.
         std::string FM = "WMA";   // Filter model. Set to WMA.
         std::vector<uint16_t> filterWeights = {1};// WMA's relevant parameters, default 1.
 
@@ -111,12 +111,18 @@ namespace SRI {
 
     typedef std::string RTDataValid; // data validation method when getting one package data from M8128. SUM or CRC32
 
+    template<typename T>
     struct RTData {
-        uint8_t                 FrameHeader[2] = {0xAA, 0x55};
-        uint16_t                PackLength;
-        uint16_t                DataNumber;
-        std::vector<uint8_t>    Data;
-        uint8_t                checksum;
+        uint16_t DataNumber;
+        std::vector<uint8_t> Data;
+//        uint8_t FrameHeader[2] = {0xAA, 0x55};
+//        uint16_t PackLength;
+//        uint8_t Checksum;
+//        uint32_t CRC32;
+
+        T& operator[](int index) const {
+
+        }
     };
 
 }

@@ -28,6 +28,9 @@ Shenyang Institute of Automation, Chinese Academy of Sciences.
 #include <thread>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/format.hpp>
+
+#define DELAY_US 500 //tcp delay in us
 
 namespace SRI {
 
@@ -51,19 +54,19 @@ namespace SRI {
             return "";
 
         size_t nStart;
-        if(parameter == "?")
+        if (parameter == "?")
             nStart = s.find("=") + 1;
         else
             nStart = s.find("$") + 1;
 
-        size_t nEnd   = s.find("\r\n");
-        return s.substr(nStart, nEnd-nStart);
+        size_t nEnd = s.find("\r\n");
+        return s.substr(nStart, nEnd - nStart);
     }
 
     IpAddr FTSensor::getIpAddress() {
         commPtr->write(generateCommandBuffer(EIP, "?"));
         while (commPtr->available() == 0) {
-            std::this_thread::sleep_for(std::chrono::microseconds(500));
+            std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
         }
         std::vector<char> recvbuf;
         commPtr->read(recvbuf);
@@ -75,7 +78,7 @@ namespace SRI {
     bool FTSensor::setIpAddress(const IpAddr &ip) {
         commPtr->write(generateCommandBuffer(EIP, ip));
         while (commPtr->available() == 0) {
-            std::this_thread::sleep_for(std::chrono::microseconds(500));
+            std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
         }
         std::vector<char> recvbuf;
         commPtr->read(recvbuf);
@@ -90,7 +93,7 @@ namespace SRI {
     MacAddr FTSensor::getMacAddress() {
         commPtr->write(generateCommandBuffer(EMAC, "?"));
         while (commPtr->available() == 0) {
-            std::this_thread::sleep_for(std::chrono::microseconds(500));
+            std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
         }
         std::vector<char> recvbuf;
         commPtr->read(recvbuf);
@@ -102,7 +105,7 @@ namespace SRI {
     bool FTSensor::setMacAddress(const MacAddr &mac) {
         commPtr->write(generateCommandBuffer(EMAC, mac));
         while (commPtr->available() == 0) {
-            std::this_thread::sleep_for(std::chrono::microseconds(500));
+            std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
         }
         std::vector<char> recvbuf;
         commPtr->read(recvbuf);
@@ -117,7 +120,7 @@ namespace SRI {
     GateAddr FTSensor::getGateWay() {
         commPtr->write(generateCommandBuffer(EGW, "?"));
         while (commPtr->available() == 0) {
-            std::this_thread::sleep_for(std::chrono::microseconds(500));
+            std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
         }
         std::vector<char> recvbuf;
         commPtr->read(recvbuf);
@@ -129,7 +132,7 @@ namespace SRI {
     bool FTSensor::setGateWay(const GateAddr &gate) {
         commPtr->write(generateCommandBuffer(EMAC, gate));
         while (commPtr->available() == 0) {
-            std::this_thread::sleep_for(std::chrono::microseconds(500));
+            std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
         }
         std::vector<char> recvbuf;
         commPtr->read(recvbuf);
@@ -144,7 +147,7 @@ namespace SRI {
     NetMask FTSensor::getNetMask() {
         commPtr->write(generateCommandBuffer(ENM, "?"));
         while (commPtr->available() == 0) {
-            std::this_thread::sleep_for(std::chrono::microseconds(500));
+            std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
         }
         std::vector<char> recvbuf;
         commPtr->read(recvbuf);
@@ -156,7 +159,7 @@ namespace SRI {
     bool FTSensor::setNetMask(const NetMask &mask) {
         commPtr->write(generateCommandBuffer(ENM, mask));
         while (commPtr->available() == 0) {
-            std::this_thread::sleep_for(std::chrono::microseconds(500));
+            std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
         }
         std::vector<char> recvbuf;
         commPtr->read(recvbuf);
@@ -171,7 +174,7 @@ namespace SRI {
     Gains FTSensor::getChannelGains() {
         commPtr->write(generateCommandBuffer(CHNAPG, "?"));
         while (commPtr->available() == 0) {
-            std::this_thread::sleep_for(std::chrono::microseconds(500));
+            std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
         }
         std::vector<char> recvbuf;
         commPtr->read(recvbuf);
@@ -181,12 +184,12 @@ namespace SRI {
         try {
             boost::split(resInString, response, boost::is_any_of(";"), boost::algorithm::token_compress_on);
         }
-        catch (boost::bad_lexical_cast& e) {
+        catch (boost::bad_lexical_cast &e) {
             std::cout << "ERROR::FTSensor::getChannelGains():" << e.what() << std::endl;
         }
         Gains gains;
 
-        for(auto& res : resInString) {
+        for (auto &res : resInString) {
             gains.push_back(std::stof(res));
         }
 
@@ -196,7 +199,7 @@ namespace SRI {
     SampleRate FTSensor::getSamplingRate() {
         commPtr->write(generateCommandBuffer(SMPR, "?"));
         while (commPtr->available() == 0) {
-            std::this_thread::sleep_for(std::chrono::microseconds(500));
+            std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
         }
         std::vector<char> recvbuf;
         commPtr->read(recvbuf);
@@ -205,10 +208,10 @@ namespace SRI {
         return std::stoi(response);
     }
 
-    bool FTSensor::setSamplingRate(const SampleRate rate) {
+    bool FTSensor::setSamplingRate(SampleRate rate) {
         commPtr->write(generateCommandBuffer(SMPR, boost::lexical_cast<std::string>(rate)));
         while (commPtr->available() == 0) {
-            std::this_thread::sleep_for(std::chrono::microseconds(500));
+            std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
         }
         std::vector<char> recvbuf;
         commPtr->read(recvbuf);
@@ -223,7 +226,7 @@ namespace SRI {
     Voltages FTSensor::getExcitationVoltages() {
         commPtr->write(generateCommandBuffer(EXMV, "?"));
         while (commPtr->available() == 0) {
-            std::this_thread::sleep_for(std::chrono::microseconds(500));
+            std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
         }
         std::vector<char> recvbuf;
         commPtr->read(recvbuf);
@@ -233,12 +236,12 @@ namespace SRI {
         try {
             boost::split(resInString, response, boost::is_any_of(";"), boost::algorithm::token_compress_on);
         }
-        catch (boost::bad_lexical_cast& e) {
+        catch (boost::bad_lexical_cast &e) {
             std::cout << "ERROR::FTSensor::getExcitationVoltages():" << e.what() << std::endl;
         }
         Voltages voltages;
 
-        for(auto& res : resInString) {
+        for (auto &res : resInString) {
             voltages.push_back(std::stof(res));
         }
 
@@ -248,7 +251,7 @@ namespace SRI {
     Sensitivities FTSensor::getSensorSensitivities() {
         commPtr->write(generateCommandBuffer(SENS, "?"));
         while (commPtr->available() == 0) {
-            std::this_thread::sleep_for(std::chrono::microseconds(500));
+            std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
         }
         std::vector<char> recvbuf;
         commPtr->read(recvbuf);
@@ -258,12 +261,12 @@ namespace SRI {
         try {
             boost::split(resInString, response, boost::is_any_of(";"), boost::algorithm::token_compress_on);
         }
-        catch (boost::bad_lexical_cast& e) {
+        catch (boost::bad_lexical_cast &e) {
             std::cout << "ERROR::FTSensor::getSensorSensitivities():" << e.what() << std::endl;
         }
         Sensitivities sens;
 
-        for(auto& res : resInString) {
+        for (auto &res : resInString) {
             sens.push_back(std::stof(res));
         }
 
@@ -272,14 +275,14 @@ namespace SRI {
 
     bool FTSensor::setSensorSensitivities(const Sensitivities &sens) {
         std::string parameters;
-        for(auto& s : sens) {
+        for (auto &s : sens) {
             parameters += boost::lexical_cast<std::string>(s) + ";";
         }
         parameters = parameters.substr(0, parameters.find_last_of(';'));
 
         commPtr->write(generateCommandBuffer(SENS, parameters));
         while (commPtr->available() == 0) {
-            std::this_thread::sleep_for(std::chrono::microseconds(500));
+            std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
         }
         std::vector<char> recvbuf;
         commPtr->read(recvbuf);
@@ -294,7 +297,7 @@ namespace SRI {
     Offsets FTSensor::getAmplifierZeroOffsets() {
         commPtr->write(generateCommandBuffer(AMPZ, "?"));
         while (commPtr->available() == 0) {
-            std::this_thread::sleep_for(std::chrono::microseconds(500));
+            std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
         }
         std::vector<char> recvbuf;
         commPtr->read(recvbuf);
@@ -304,12 +307,12 @@ namespace SRI {
         try {
             boost::split(resInString, response, boost::is_any_of(";"), boost::algorithm::token_compress_on);
         }
-        catch (boost::bad_lexical_cast& e) {
+        catch (boost::bad_lexical_cast &e) {
             std::cout << "ERROR::FTSensor::getAmplifierZeroOffsets():" << e.what() << std::endl;
         }
         Offsets offsets;
 
-        for(auto& res : resInString) {
+        for (auto &res : resInString) {
             offsets.push_back(std::stof(res));
         }
 
@@ -324,7 +327,7 @@ namespace SRI {
     RTDataMode FTSensor::getRealTimeDataMode() {
         commPtr->write(generateCommandBuffer(SGDM, "?"));
         while (commPtr->available() == 0) {
-            std::this_thread::sleep_for(std::chrono::microseconds(500));
+            std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
         }
         std::vector<char> recvbuf;
         commPtr->read(recvbuf);
@@ -334,11 +337,11 @@ namespace SRI {
         try {
             boost::split(resInString, response, boost::is_any_of(";"), boost::algorithm::token_compress_on);
         }
-        catch (boost::bad_lexical_cast& e) {
+        catch (boost::bad_lexical_cast &e) {
             std::cout << "ERROR::FTSensor::getRealTimeDataMode():" << e.what() << std::endl;
         }
 
-        if(resInString.size() != 4)
+        if (resInString.size() != 4)
             std::cout << "ERROR::FTSensor::getRealTimeDataMode():Parse Data False" << std::endl;
 
 
@@ -348,7 +351,7 @@ namespace SRI {
         boost::trim_if(resInString[0], boost::is_any_of("()"));
         boost::split(channelsInString, resInString[0], boost::is_any_of("(),"), boost::algorithm::token_compress_on);
         rtDataMode.channelOrder.clear(); //rtDataMode has default value 1,2,3,4,5,6
-        for(auto& cs : channelsInString) {
+        for (auto &cs : channelsInString) {
             auto c = std::stoi(cs.substr(cs.find('A') + 1));
             rtDataMode.channelOrder.push_back(c);
         }
@@ -356,7 +359,7 @@ namespace SRI {
         rtDataMode.DataUnit = resInString[1][0];
         //3. Number of data which are desired.
         rtDataMode.PNpCH = std::stoi(resInString[2]);
-        //4. Filter model. Set to WMA.
+        //4. Filter model. Set to WMA. format: (WMA:1,1,2,3,4)
         std::vector<std::string> fmInString;
         boost::trim_if(resInString[3], boost::is_any_of("()"));
         boost::split(fmInString, resInString[3], boost::is_any_of("():"), boost::algorithm::token_compress_on);
@@ -365,14 +368,126 @@ namespace SRI {
         //5. WMA's relevant parameters, default 1.
         std::vector<std::string> weightsInString;
         boost::split(weightsInString, fmInString[1], boost::is_any_of(","), boost::algorithm::token_compress_on);
-        for(auto& ws : weightsInString) {
+        for (auto &ws : weightsInString) {
             auto w = std::stoi(ws);
             rtDataMode.filterWeights.push_back(w);
         }
 
         return rtDataMode;
+    }
+
+    bool FTSensor::setRealTimeDataMode(const RTDataMode &rtDataMode) {
+        //format (A02,A03,A04,A01,A05,A06);C;1;(WMA:1,1,2,3)
+        //1.
+        std::string parameters;
+        parameters += "(";
+        for (auto &c : rtDataMode.channelOrder) {
+            parameters += boost::str(boost::format("A%02d,") % c);
+        }
+        boost::trim_right_if(parameters, boost::is_any_of(","));
+        parameters += ");";
+        //2.
+        parameters += rtDataMode.DataUnit;
+        parameters += ";";
+        //3.
+        parameters += std::to_string(rtDataMode.PNpCH);
+        parameters += ";";
+        //4.
+        std::string weights;
+        for (auto &w : rtDataMode.filterWeights) {
+            weights += boost::str(boost::format("%d,") % w);
+        }
+        boost::trim_right_if(weights, boost::is_any_of(","));
+        parameters += boost::str(boost::format("(%s:%s)") % rtDataMode.FM % weights);
+
+        commPtr->write(generateCommandBuffer(SGDM, parameters));
+        while (commPtr->available() == 0) {
+            std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
+        }
+        std::vector<char> recvbuf;
+        commPtr->read(recvbuf);
+        std::string response = extractResponseBuffer(recvbuf, SGDM, parameters);
+
+        if (response == "OK")
+            return true;
+        else
+            return false;
+    }
+
+    bool FTSensor::setRealTimeDataValid(const RTDataValid &rtDataValid) {
+        commPtr->write(generateCommandBuffer(DCKMD, rtDataValid));
+        while (commPtr->available() == 0) {
+            std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
+        }
+        std::vector<char> recvbuf;
+        commPtr->read(recvbuf);
+        std::string response = extractResponseBuffer(recvbuf, DCKMD, rtDataValid);
+
+        if (response == "OK")
+            return true;
+        else
+            return false;
+    }
+
+    RTDataValid FTSensor::getRealTimeDataValid() {
+        commPtr->write(generateCommandBuffer(DCKMD, "?"));
+        while (commPtr->available() == 0) {
+            std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
+        }
+        std::vector<char> recvbuf;
+        commPtr->read(recvbuf);
+        std::string response = extractResponseBuffer(recvbuf, DCKMD, "?");
+
+        return response;
+    }
+
+    template<typename T>
+    std::vector<RTData<T>> FTSensor::getRealTimeDataOnce(const RTDataMode& rtMode, const RTDataValid& rtValid) {
+        commPtr->write("AT+GOD\r\n");
+        while (commPtr->available() == 0) {
+            std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
+        }
+        std::vector<char> recvbuf;
+        commPtr->read(recvbuf);
+
+        std::vector<RTData<T>> res(rtMode.PNpCH);
+
+        //parse the received buffer
+        uint32_t paritybit = 1;
+        if(rtValid == "SUM") {
+            paritybit = 1;
+        }
+        else if(rtValid == "CRC32") {
+            paritybit = 4;
+        }
+
+        if ((recvbuf[0] != 0xAA) || (recvbuf[1] != 0x55)) { // FRAME HEADER FAULT
+            std::cout << "SRI::REAL-TIME-ERROR::Frame header is fault. " << std::endl;
+            return std::vector<RTData<T>>();
+        }
+
+        uint32_t PackageLength = recvbuf[2]*256 + recvbuf[3];
+        if( PackageLength != recvbuf.size() - 4) {
+            std::cout << "SRI::REAL-TIME-ERROR::Package Length is fault. " << std::endl;
+            return std::vector<RTData<T>>();
+        }
+
+        if((PackageLength - paritybit -2) != rtMode.channelOrder.size() * sizeof(T) * rtMode.PNpCH ) {
+            std::cout << "SRI::REAL-TIME-ERROR::Expected Data Length is fault. Maybe Data Mode need update " << std::endl;
+            return std::vector<RTData<T>>();
+        }
+
+        //TODO:
+
+        return std::vector<RTData<T>>();
+    }
+
+    void FTSensor::startRealTimeDataRepeatedly() {
 
     }
 
+    void FTSensor::stopRealTimeDataRepeatedly() {
+
+    }
 
 } //namespace SRI
