@@ -50,11 +50,14 @@ namespace SRI {
         if (s.find(command) == s.npos)
             return "";
 
+        size_t nStart;
         if(parameter == "?")
-            return s.substr(s.find("=") + 1, s.find("\r\n"));
+            nStart = s.find("=") + 1;
         else
-            return s.substr(s.find("$") + 1, s.find("\r\n"));
+            nStart = s.find("$") + 1;
 
+        size_t nEnd   = s.find("\r\n");
+        return s.substr(nStart, nEnd-nStart);
     }
 
     IpAddr FTSensor::getIpAddress() {
@@ -176,7 +179,7 @@ namespace SRI {
 
         std::vector<std::string> resInString;
         try {
-            boost::split(resInString, response, boost::is_any_of(";"));
+            boost::split(resInString, response, boost::is_any_of(";"), boost::algorithm::token_compress_on);
         }
         catch (boost::bad_lexical_cast& e) {
             std::cout << "ERROR::FTSensor::getChannelGains():" << e.what() << std::endl;
@@ -184,10 +187,191 @@ namespace SRI {
         Gains gains;
 
         for(auto& res : resInString) {
-            gains.push_back(stof(res));
+            gains.push_back(std::stof(res));
         }
 
         return gains;
+    }
+
+    SampleRate FTSensor::getSamplingRate() {
+        commPtr->write(generateCommandBuffer(SMPR, "?"));
+        while (commPtr->available() == 0) {
+            std::this_thread::sleep_for(std::chrono::microseconds(500));
+        }
+        std::vector<char> recvbuf;
+        commPtr->read(recvbuf);
+        std::string response = extractResponseBuffer(recvbuf, SMPR, "?");
+
+        return std::stoi(response);
+    }
+
+    bool FTSensor::setSamplingRate(const SampleRate rate) {
+        commPtr->write(generateCommandBuffer(SMPR, boost::lexical_cast<std::string>(rate)));
+        while (commPtr->available() == 0) {
+            std::this_thread::sleep_for(std::chrono::microseconds(500));
+        }
+        std::vector<char> recvbuf;
+        commPtr->read(recvbuf);
+        std::string response = extractResponseBuffer(recvbuf, SMPR, boost::lexical_cast<std::string>(rate));
+
+        if (response == "OK")
+            return true;
+        else
+            return false;
+    }
+
+    Voltages FTSensor::getExcitationVoltages() {
+        commPtr->write(generateCommandBuffer(EXMV, "?"));
+        while (commPtr->available() == 0) {
+            std::this_thread::sleep_for(std::chrono::microseconds(500));
+        }
+        std::vector<char> recvbuf;
+        commPtr->read(recvbuf);
+        std::string response = extractResponseBuffer(recvbuf, EXMV, "?");
+
+        std::vector<std::string> resInString;
+        try {
+            boost::split(resInString, response, boost::is_any_of(";"), boost::algorithm::token_compress_on);
+        }
+        catch (boost::bad_lexical_cast& e) {
+            std::cout << "ERROR::FTSensor::getExcitationVoltages():" << e.what() << std::endl;
+        }
+        Voltages voltages;
+
+        for(auto& res : resInString) {
+            voltages.push_back(std::stof(res));
+        }
+
+        return voltages;
+    }
+
+    Sensitivities FTSensor::getSensorSensitivities() {
+        commPtr->write(generateCommandBuffer(SENS, "?"));
+        while (commPtr->available() == 0) {
+            std::this_thread::sleep_for(std::chrono::microseconds(500));
+        }
+        std::vector<char> recvbuf;
+        commPtr->read(recvbuf);
+        std::string response = extractResponseBuffer(recvbuf, SENS, "?");
+
+        std::vector<std::string> resInString;
+        try {
+            boost::split(resInString, response, boost::is_any_of(";"), boost::algorithm::token_compress_on);
+        }
+        catch (boost::bad_lexical_cast& e) {
+            std::cout << "ERROR::FTSensor::getSensorSensitivities():" << e.what() << std::endl;
+        }
+        Sensitivities sens;
+
+        for(auto& res : resInString) {
+            sens.push_back(std::stof(res));
+        }
+
+        return sens;
+    }
+
+    bool FTSensor::setSensorSensitivities(const Sensitivities &sens) {
+        std::string parameters;
+        for(auto& s : sens) {
+            parameters += boost::lexical_cast<std::string>(s) + ";";
+        }
+        parameters = parameters.substr(0, parameters.find_last_of(';'));
+
+        commPtr->write(generateCommandBuffer(SENS, parameters));
+        while (commPtr->available() == 0) {
+            std::this_thread::sleep_for(std::chrono::microseconds(500));
+        }
+        std::vector<char> recvbuf;
+        commPtr->read(recvbuf);
+        std::string response = extractResponseBuffer(recvbuf, SENS, parameters);
+
+        if (response == "OK")
+            return true;
+        else
+            return false;
+    }
+
+    Offsets FTSensor::getAmplifierZeroOffsets() {
+        commPtr->write(generateCommandBuffer(AMPZ, "?"));
+        while (commPtr->available() == 0) {
+            std::this_thread::sleep_for(std::chrono::microseconds(500));
+        }
+        std::vector<char> recvbuf;
+        commPtr->read(recvbuf);
+        std::string response = extractResponseBuffer(recvbuf, AMPZ, "?");
+
+        std::vector<std::string> resInString;
+        try {
+            boost::split(resInString, response, boost::is_any_of(";"), boost::algorithm::token_compress_on);
+        }
+        catch (boost::bad_lexical_cast& e) {
+            std::cout << "ERROR::FTSensor::getAmplifierZeroOffsets():" << e.what() << std::endl;
+        }
+        Offsets offsets;
+
+        for(auto& res : resInString) {
+            offsets.push_back(std::stof(res));
+        }
+
+        return offsets;
+    }
+
+    bool FTSensor::setAmplifierZeroOffsets(const Offsets &offsets) {
+        std::cout << "SRI::FTSensor::setAmplifierZeroOffsets::Has not been implemented." << std::endl;
+        return false;
+    }
+
+    RTDataMode FTSensor::getRealTimeDataMode() {
+        commPtr->write(generateCommandBuffer(SGDM, "?"));
+        while (commPtr->available() == 0) {
+            std::this_thread::sleep_for(std::chrono::microseconds(500));
+        }
+        std::vector<char> recvbuf;
+        commPtr->read(recvbuf);
+        std::string response = extractResponseBuffer(recvbuf, SGDM, "?");
+
+        std::vector<std::string> resInString;
+        try {
+            boost::split(resInString, response, boost::is_any_of(";"), boost::algorithm::token_compress_on);
+        }
+        catch (boost::bad_lexical_cast& e) {
+            std::cout << "ERROR::FTSensor::getRealTimeDataMode():" << e.what() << std::endl;
+        }
+
+        if(resInString.size() != 4)
+            std::cout << "ERROR::FTSensor::getRealTimeDataMode():Parse Data False" << std::endl;
+
+
+        RTDataMode rtDataMode;
+        //1. Get the relevant analog channels. format: (A01,A02,A03,A04,A05,A06)
+        std::vector<std::string> channelsInString;
+        boost::trim_if(resInString[0], boost::is_any_of("()"));
+        boost::split(channelsInString, resInString[0], boost::is_any_of("(),"), boost::algorithm::token_compress_on);
+        rtDataMode.channelOrder.clear(); //rtDataMode has default value 1,2,3,4,5,6
+        for(auto& cs : channelsInString) {
+            auto c = std::stoi(cs.substr(cs.find('A') + 1));
+            rtDataMode.channelOrder.push_back(c);
+        }
+        //2. The unit of data uploaded from M8128.
+        rtDataMode.DataUnit = resInString[1][0];
+        //3. Number of data which are desired.
+        rtDataMode.PNpCH = std::stoi(resInString[2]);
+        //4. Filter model. Set to WMA.
+        std::vector<std::string> fmInString;
+        boost::trim_if(resInString[3], boost::is_any_of("()"));
+        boost::split(fmInString, resInString[3], boost::is_any_of("():"), boost::algorithm::token_compress_on);
+
+        rtDataMode.FM = fmInString[0];
+        //5. WMA's relevant parameters, default 1.
+        std::vector<std::string> weightsInString;
+        boost::split(weightsInString, fmInString[1], boost::is_any_of(","), boost::algorithm::token_compress_on);
+        for(auto& ws : weightsInString) {
+            auto w = std::stoi(ws);
+            rtDataMode.filterWeights.push_back(w);
+        }
+
+        return rtDataMode;
+
     }
 
 
