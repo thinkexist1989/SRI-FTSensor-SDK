@@ -21,8 +21,8 @@ Shenyang Institute of Automation, Chinese Academy of Sciences.
 @Created on: 2021.04.06
 */
 
-#ifndef SRI_FTSENSOR_SDK_TYPES_H
-#define SRI_FTSENSOR_SDK_TYPES_H
+#ifndef SRI_FTSENSOR_SDK_TYPES_HPP
+#define SRI_FTSENSOR_SDK_TYPES_HPP
 
 #include <string>
 #include <vector>
@@ -133,4 +133,4 @@ namespace SRI {
 
 }
 
-#endif //SRI_FTSENSOR_SDK_TYPES_H
+#endif //SRI_FTSENSOR_SDK_TYPES_HPP

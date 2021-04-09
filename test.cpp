@@ -2,8 +2,8 @@
 // Created by think on 2021/4/7.
 //
 
-#include <sri/ftsensor.h>
-#include <sri/commethernet.h>
+#include <sri/ftsensor.hpp>
+#include <sri/commethernet.hpp>
 
 #include <iostream>
 
@@ -11,22 +11,23 @@ using namespace SRI;
 
 int main() {
 
-    SRI::CommEthernet* ce = new SRI::CommEthernet("192.168.1.108", 4008);
+    SRI::CommEthernet* ce = new SRI::CommEthernet("127.0.0.1", 4008);
 
     SRI::FTSensor sensor(ce);
-    sensor.generateCommandBuffer(SRI::EIP,"?");
+//    sensor.generateCommandBuffer(SRI::EIP,"?");
 
 //    std::string s = ACK + EIP + "=" + "127.0.0.1\r\n";
-    std::string s = ACK + EIP + "=" + "127.0.0.1$ERROR\r\n";
-    std::vector<int8_t> buf(s.begin(), s.end());
-    std::string res = sensor.extractResponseBuffer(buf, EIP, "127.0.0.1");
-    std::cout << res << std::endl;
+//    std::string s = ACK + EIP + "=" + "127.0.0.1$ERROR\r\n";
+//    std::vector<int8_t> buf(s.begin(), s.end());
+//    std::string res = sensor.extractResponseBuffer(buf, EIP, "127.0.0.1");
+//    std::cout << res << std::endl;
 
     std::cout << "IP Address: " << sensor.getIpAddress() << std::endl;
 
 //    std::cout << sensor.setIpAddress("192.168.3.3") << std::endl;
 
     Gains gains = sensor.getChannelGains();
+    std::cout << "Channel Gains: ";
     for(auto& gain : gains) {
         std::cout << gain << " ; ";
     }

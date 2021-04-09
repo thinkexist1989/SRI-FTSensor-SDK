@@ -21,8 +21,8 @@ Shenyang Institute of Automation, Chinese Academy of Sciences.
 @Created on: 2021.04.06
 */
 
-#ifndef SRI_FTSENSOR_SDK_SENSORCOMM_H
-#define SRI_FTSENSOR_SDK_SENSORCOMM_H
+#ifndef SRI_FTSENSOR_SDK_SENSORCOMM_HPP
+#define SRI_FTSENSOR_SDK_SENSORCOMM_HPP
 
 #include <vector>
 #include <string>
@@ -30,34 +30,40 @@ Shenyang Institute of Automation, Chinese Academy of Sciences.
 namespace SRI {
     class SensorComm {
     public:
-        virtual bool isValid();        // Get the valid status of the sensor
+        SensorComm() = default;
 
-        virtual bool initialize();     // Initialize the communication
+        virtual ~SensorComm() = 0; // Pure virtual deconstructor for polymorphism
+
+        virtual bool isValid() { // Get the valid status of the sensor
+            return _validStatus;
+        }
+
+        virtual bool initialize() = 0;// Initialize the communication
+
 
         /// Write Data Buffer to Sensor
         /// \param buf The data need to send
         /// \return       The number of chars have been sent
-        virtual size_t write(std::vector<int8_t> &buf);
-        virtual size_t write(const std::string &buf);
-        virtual size_t write(char* buf, size_t n);
+        virtual size_t write(std::vector<int8_t> &buf) = 0;
+        virtual size_t write(const std::string &buf) = 0;
+        virtual size_t write(char* buf, size_t n) = 0;
 
         /// Read Data Buffer from Sensor
         /// \param[out] buf The data received
         /// \return            The number of chars have been received
-        virtual size_t read(std::vector<int8_t> &buf);
-        virtual size_t read(std::string& buf);
-        virtual size_t read(char* buf, size_t n);
+        virtual size_t read(std::vector<int8_t> &buf) = 0;
+        virtual size_t read(std::string& buf) = 0;
+        virtual size_t read(char* buf, size_t n) = 0;
 
-        virtual size_t available();
+        virtual size_t available() = 0;
 
-        SensorComm();
-
-        virtual ~SensorComm();     // Pure virtual deconstructor for polymorphism
-
+    protected:
         bool _validStatus = false;     // The status of the communication with the sensor
 
     }; // class SensorComm
+
+    SensorComm::~SensorComm() {}
 } //namespace SRI
 
 
-#endif //SRI_FTSENSOR_SDK_SENSORCOMM_H
+#endif //SRI_FTSENSOR_SDK_SENSORCOMM_HPP
