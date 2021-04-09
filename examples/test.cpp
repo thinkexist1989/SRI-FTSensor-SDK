@@ -18,7 +18,7 @@ int main() {
 
 //    std::string s = ACK + EIP + "=" + "127.0.0.1\r\n";
     std::string s = ACK + EIP + "=" + "127.0.0.1$ERROR\r\n";
-    std::vector<char> buf(s.begin(), s.end());
+    std::vector<int8_t> buf(s.begin(), s.end());
     std::string res = sensor.extractResponseBuffer(buf, EIP, "127.0.0.1");
     std::cout << res << std::endl;
 

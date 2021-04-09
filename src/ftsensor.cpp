@@ -25,10 +25,12 @@ Shenyang Institute of Automation, Chinese Academy of Sciences.
 #include "sri/ftsensor.h"
 #include <iostream>
 #include <algorithm>
+#include <numeric> // std::accumulate
 #include <thread>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
+#include <boost/crc.hpp> //crc32
 
 #define DELAY_US 500 //tcp delay in us
 
@@ -43,10 +45,10 @@ namespace SRI {
         return AT + command + "=" + parameter + "\r\n";
     }
 
-    std::string FTSensor::extractResponseBuffer(std::vector<char> &buf,
+    std::string FTSensor::extractResponseBuffer(std::vector<int8_t> &buf,
                                                 const std::string &command,
                                                 const std::string &parameter) {
-        std::string s(buf.data(), buf.size());
+        std::string s((char*)buf.data(), buf.size());
 
         if (s.find(ACK) != 0)
             return "";
@@ -68,7 +70,7 @@ namespace SRI {
         while (commPtr->available() == 0) {
             std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
         }
-        std::vector<char> recvbuf;
+        std::vector<int8_t> recvbuf;
         commPtr->read(recvbuf);
         std::string response = extractResponseBuffer(recvbuf, EIP, "?");
 
@@ -80,7 +82,7 @@ namespace SRI {
         while (commPtr->available() == 0) {
             std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
         }
-        std::vector<char> recvbuf;
+        std::vector<int8_t> recvbuf;
         commPtr->read(recvbuf);
         std::string response = extractResponseBuffer(recvbuf, EIP, ip);
 
@@ -95,7 +97,7 @@ namespace SRI {
         while (commPtr->available() == 0) {
             std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
         }
-        std::vector<char> recvbuf;
+        std::vector<int8_t> recvbuf;
         commPtr->read(recvbuf);
         std::string response = extractResponseBuffer(recvbuf, EMAC, "?");
 
@@ -107,7 +109,7 @@ namespace SRI {
         while (commPtr->available() == 0) {
             std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
         }
-        std::vector<char> recvbuf;
+        std::vector<int8_t> recvbuf;
         commPtr->read(recvbuf);
         std::string response = extractResponseBuffer(recvbuf, EIP, mac);
 
@@ -122,7 +124,7 @@ namespace SRI {
         while (commPtr->available() == 0) {
             std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
         }
-        std::vector<char> recvbuf;
+        std::vector<int8_t> recvbuf;
         commPtr->read(recvbuf);
         std::string response = extractResponseBuffer(recvbuf, EGW, "?");
 
@@ -134,7 +136,7 @@ namespace SRI {
         while (commPtr->available() == 0) {
             std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
         }
-        std::vector<char> recvbuf;
+        std::vector<int8_t> recvbuf;
         commPtr->read(recvbuf);
         std::string response = extractResponseBuffer(recvbuf, EMAC, gate);
 
@@ -149,7 +151,7 @@ namespace SRI {
         while (commPtr->available() == 0) {
             std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
         }
-        std::vector<char> recvbuf;
+        std::vector<int8_t> recvbuf;
         commPtr->read(recvbuf);
         std::string response = extractResponseBuffer(recvbuf, ENM, "?");
 
@@ -161,7 +163,7 @@ namespace SRI {
         while (commPtr->available() == 0) {
             std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
         }
-        std::vector<char> recvbuf;
+        std::vector<int8_t> recvbuf;
         commPtr->read(recvbuf);
         std::string response = extractResponseBuffer(recvbuf, ENM, mask);
 
@@ -176,7 +178,7 @@ namespace SRI {
         while (commPtr->available() == 0) {
             std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
         }
-        std::vector<char> recvbuf;
+        std::vector<int8_t> recvbuf;
         commPtr->read(recvbuf);
         std::string response = extractResponseBuffer(recvbuf, CHNAPG, "?");
 
@@ -201,7 +203,7 @@ namespace SRI {
         while (commPtr->available() == 0) {
             std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
         }
-        std::vector<char> recvbuf;
+        std::vector<int8_t> recvbuf;
         commPtr->read(recvbuf);
         std::string response = extractResponseBuffer(recvbuf, SMPR, "?");
 
@@ -213,7 +215,7 @@ namespace SRI {
         while (commPtr->available() == 0) {
             std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
         }
-        std::vector<char> recvbuf;
+        std::vector<int8_t> recvbuf;
         commPtr->read(recvbuf);
         std::string response = extractResponseBuffer(recvbuf, SMPR, boost::lexical_cast<std::string>(rate));
 
@@ -228,7 +230,7 @@ namespace SRI {
         while (commPtr->available() == 0) {
             std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
         }
-        std::vector<char> recvbuf;
+        std::vector<int8_t> recvbuf;
         commPtr->read(recvbuf);
         std::string response = extractResponseBuffer(recvbuf, EXMV, "?");
 
@@ -253,7 +255,7 @@ namespace SRI {
         while (commPtr->available() == 0) {
             std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
         }
-        std::vector<char> recvbuf;
+        std::vector<int8_t> recvbuf;
         commPtr->read(recvbuf);
         std::string response = extractResponseBuffer(recvbuf, SENS, "?");
 
@@ -284,7 +286,7 @@ namespace SRI {
         while (commPtr->available() == 0) {
             std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
         }
-        std::vector<char> recvbuf;
+        std::vector<int8_t> recvbuf;
         commPtr->read(recvbuf);
         std::string response = extractResponseBuffer(recvbuf, SENS, parameters);
 
@@ -299,7 +301,7 @@ namespace SRI {
         while (commPtr->available() == 0) {
             std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
         }
-        std::vector<char> recvbuf;
+        std::vector<int8_t> recvbuf;
         commPtr->read(recvbuf);
         std::string response = extractResponseBuffer(recvbuf, AMPZ, "?");
 
@@ -329,7 +331,7 @@ namespace SRI {
         while (commPtr->available() == 0) {
             std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
         }
-        std::vector<char> recvbuf;
+        std::vector<int8_t> recvbuf;
         commPtr->read(recvbuf);
         std::string response = extractResponseBuffer(recvbuf, SGDM, "?");
 
@@ -404,7 +406,7 @@ namespace SRI {
         while (commPtr->available() == 0) {
             std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
         }
-        std::vector<char> recvbuf;
+        std::vector<int8_t> recvbuf;
         commPtr->read(recvbuf);
         std::string response = extractResponseBuffer(recvbuf, SGDM, parameters);
 
@@ -419,7 +421,7 @@ namespace SRI {
         while (commPtr->available() == 0) {
             std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
         }
-        std::vector<char> recvbuf;
+        std::vector<int8_t> recvbuf;
         commPtr->read(recvbuf);
         std::string response = extractResponseBuffer(recvbuf, DCKMD, rtDataValid);
 
@@ -434,7 +436,7 @@ namespace SRI {
         while (commPtr->available() == 0) {
             std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
         }
-        std::vector<char> recvbuf;
+        std::vector<int8_t> recvbuf;
         commPtr->read(recvbuf);
         std::string response = extractResponseBuffer(recvbuf, DCKMD, "?");
 
@@ -447,10 +449,8 @@ namespace SRI {
         while (commPtr->available() == 0) {
             std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
         }
-        std::vector<char> recvbuf;
+        std::vector<int8_t> recvbuf;
         commPtr->read(recvbuf);
-
-        std::vector<RTData<T>> res(rtMode.PNpCH);
 
         //parse the received buffer
         uint32_t paritybit = 1;
@@ -472,14 +472,41 @@ namespace SRI {
             return std::vector<RTData<T>>();
         }
 
-        if((PackageLength - paritybit -2) != rtMode.channelOrder.size() * sizeof(T) * rtMode.PNpCH ) {
+        uint32_t dataLen = PackageLength - paritybit -2;
+        if( dataLen != rtMode.channelOrder.size() * sizeof(T) * rtMode.PNpCH ) {
             std::cout << "SRI::REAL-TIME-ERROR::Expected Data Length is fault. Maybe Data Mode need update " << std::endl;
             return std::vector<RTData<T>>();
         }
 
         //TODO:
+        if(rtValid == "SUM") {
+            if(recvbuf.back() != getChecksum(&(recvbuf[6]), dataLen)) {
+                std::cout << "SRI::REAL-TIME-ERROR::Checksum is incorrect. " << std::endl;
+                return std::vector<RTData<T>>();
+            }
+        }
+        else if(rtValid == "CRC32") {
+            uint32_t crc32 = getCRC32(&(recvbuf[6]), dataLen);
+            int8_t* pCRC = &(recvbuf[recvbuf.size() - 4]);
+            for(int i = 0; i < 4; i++) {
+                if(pCRC[i] != ((int8_t*)&crc32)[i]) {
+                    std::cout << "SRI::REAL-TIME-ERROR::CRC32 is incorrect. " << std::endl;
+                    return std::vector<RTData<T>>();
+                }
+            }
+        }
 
-        return std::vector<RTData<T>>();
+        std::vector<RTData<T>> rtData(rtMode.PNpCH);
+        // i*nChannel*sizeof(T) + sizeof(T)*j
+        size_t nChannel = rtMode.channelOrder.size();
+        for(int i = 0; i < rtMode.PNpCH; i++) {
+            for(int j = 0; j < nChannel ; j++) {
+                T val = (T*)(&(recvbuf[6]) + i*nChannel*sizeof(T) + sizeof(T)*j);
+                rtData[i][j] = val;
+            }
+        }
+        
+        return rtData;
     }
 
     void FTSensor::startRealTimeDataRepeatedly() {
@@ -488,6 +515,19 @@ namespace SRI {
 
     void FTSensor::stopRealTimeDataRepeatedly() {
 
+    }
+
+    uint8_t FTSensor::getChecksum(int8_t *pData, size_t len) {
+        uint8_t sum = 0;
+        sum = std::accumulate(pData, pData+len, 0);
+        return sum;
+    }
+
+    uint32_t FTSensor::getCRC32(int8_t *pData, size_t len) { // TODO: without validation
+        boost::crc_32_type crc32;
+        crc32.process_bytes(pData, len);
+
+        return crc32.checksum();
     }
 
 } //namespace SRI

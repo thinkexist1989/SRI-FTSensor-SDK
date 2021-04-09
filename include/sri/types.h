@@ -114,14 +114,20 @@ namespace SRI {
     template<typename T>
     struct RTData {
         uint16_t DataNumber;
-        std::vector<uint8_t> Data;
+        std::vector<T> Data;
 //        uint8_t FrameHeader[2] = {0xAA, 0x55};
 //        uint16_t PackLength;
 //        uint8_t Checksum;
 //        uint32_t CRC32;
 
-        T& operator[](int index) const {
-
+        T& operator[](int index) {
+            if(Data.size() <= index) {
+                Data.resize(index + 1);
+                return Data[index];
+            }
+            else {
+                return Data[index];
+            }
         }
     };
 

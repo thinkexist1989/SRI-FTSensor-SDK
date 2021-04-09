@@ -40,11 +40,11 @@ namespace SRI {
         return false;
     }
 
-    size_t SensorComm::write(std::vector<char> &buf) {
+    size_t SensorComm::write(std::vector<int8_t> &buf) {
         return 0;
     }
 
-    size_t SensorComm::read(std::vector<char> &buf) {
+    size_t SensorComm::read(std::vector<int8_t> &buf) {
         return 0;
     }
 

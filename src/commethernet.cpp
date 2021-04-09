@@ -33,7 +33,7 @@ namespace SRI {
             return false;
     }
 
-    size_t CommEthernet::write(std::vector<char> &buf) {
+    size_t CommEthernet::write(std::vector<int8_t> &buf) {
         if (!_socket.is_open()) {
             _validStatus = false;
             return 0;
@@ -57,7 +57,7 @@ namespace SRI {
         return _socket.write_some(buffer(buf));
     }
 
-    size_t CommEthernet::read(std::vector<char> &buf) {
+    size_t CommEthernet::read(std::vector<int8_t> &buf) {
         if (!_socket.is_open()) {
             _validStatus = false;
             return 0;

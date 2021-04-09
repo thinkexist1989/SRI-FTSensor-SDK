@@ -87,9 +87,12 @@ namespace SRI {
         /// \param[in] recvbuf          The reference of received buffer.
         /// \param[in] expect_command   The expected command.
         /// \return                     The response from sensor(string format)
-        std::string extractResponseBuffer(std::vector<char> &buf,
+        std::string extractResponseBuffer(std::vector<int8_t> &buf,
                                           const std::string &command,
                                           const std::string &parameter);
+
+        uint8_t getChecksum(int8_t *pData, size_t len);
+        uint32_t getCRC32(int8_t* pData, size_t len);
 
 
     }; // class FTSensor
