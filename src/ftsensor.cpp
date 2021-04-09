@@ -32,7 +32,6 @@ Shenyang Institute of Automation, Chinese Academy of Sciences.
 #include <boost/format.hpp>
 #include <boost/crc.hpp> //crc32
 
-#define DELAY_US 500 //tcp delay in us
 
 namespace SRI {
 
@@ -55,13 +54,17 @@ namespace SRI {
         if (s.find(command) == s.npos)
             return "";
 
-        size_t nStart;
-        if (parameter == "?")
+        size_t nStart, nEnd;
+        if (parameter == "?") {
             nStart = s.find("=") + 1;
-        else
+            nEnd = s.find("$");
+        }
+        else {
             nStart = s.find("$") + 1;
+            nEnd = s.find("\r\n");
+        }
 
-        size_t nEnd = s.find("\r\n");
+
         return s.substr(nStart, nEnd - nStart);
     }
 
@@ -443,71 +446,10 @@ namespace SRI {
         return response;
     }
 
-    template<typename T>
-    std::vector<RTData<T>> FTSensor::getRealTimeDataOnce(const RTDataMode& rtMode, const RTDataValid& rtValid) {
-        commPtr->write("AT+GOD\r\n");
-        while (commPtr->available() == 0) {
-            std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
-        }
-        std::vector<int8_t> recvbuf;
-        commPtr->read(recvbuf);
-
-        //parse the received buffer
-        uint32_t paritybit = 1;
-        if(rtValid == "SUM") {
-            paritybit = 1;
-        }
-        else if(rtValid == "CRC32") {
-            paritybit = 4;
-        }
-
-        if ((recvbuf[0] != 0xAA) || (recvbuf[1] != 0x55)) { // FRAME HEADER FAULT
-            std::cout << "SRI::REAL-TIME-ERROR::Frame header is fault. " << std::endl;
-            return std::vector<RTData<T>>();
-        }
-
-        uint32_t PackageLength = recvbuf[2]*256 + recvbuf[3];
-        if( PackageLength != recvbuf.size() - 4) {
-            std::cout << "SRI::REAL-TIME-ERROR::Package Length is fault. " << std::endl;
-            return std::vector<RTData<T>>();
-        }
-
-        uint32_t dataLen = PackageLength - paritybit -2;
-        if( dataLen != rtMode.channelOrder.size() * sizeof(T) * rtMode.PNpCH ) {
-            std::cout << "SRI::REAL-TIME-ERROR::Expected Data Length is fault. Maybe Data Mode need update " << std::endl;
-            return std::vector<RTData<T>>();
-        }
-
-        //TODO:
-        if(rtValid == "SUM") {
-            if(recvbuf.back() != getChecksum(&(recvbuf[6]), dataLen)) {
-                std::cout << "SRI::REAL-TIME-ERROR::Checksum is incorrect. " << std::endl;
-                return std::vector<RTData<T>>();
-            }
-        }
-        else if(rtValid == "CRC32") {
-            uint32_t crc32 = getCRC32(&(recvbuf[6]), dataLen);
-            int8_t* pCRC = &(recvbuf[recvbuf.size() - 4]);
-            for(int i = 0; i < 4; i++) {
-                if(pCRC[i] != ((int8_t*)&crc32)[i]) {
-                    std::cout << "SRI::REAL-TIME-ERROR::CRC32 is incorrect. " << std::endl;
-                    return std::vector<RTData<T>>();
-                }
-            }
-        }
-
-        std::vector<RTData<T>> rtData(rtMode.PNpCH);
-        // i*nChannel*sizeof(T) + sizeof(T)*j
-        size_t nChannel = rtMode.channelOrder.size();
-        for(int i = 0; i < rtMode.PNpCH; i++) {
-            for(int j = 0; j < nChannel ; j++) {
-                T val = (T*)(&(recvbuf[6]) + i*nChannel*sizeof(T) + sizeof(T)*j);
-                rtData[i][j] = val;
-            }
-        }
-        
-        return rtData;
-    }
+//    template<typename T>
+//    std::vector<RTData<T>> FTSensor::getRealTimeDataOnce(const RTDataMode& rtMode, const RTDataValid& rtValid) {
+//
+//    }
 
     void FTSensor::startRealTimeDataRepeatedly() {
 
