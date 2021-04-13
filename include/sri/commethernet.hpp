@@ -76,7 +76,7 @@ namespace SRI {
                 _validStatus = false;
                 return 0;
             }
-            return _socket.write_some(buffer(buf));
+            return _socket.write_some(buffer(&buf[0], buf.size()));
         }
 
         size_t write(char *buf, size_t n) override {
@@ -117,7 +117,7 @@ namespace SRI {
 
             buf.resize(available());
 
-            return _socket.read_some(buffer(buf));
+            return _socket.read_some(buffer(&buf[0], buf.size()));
         }
 
         size_t available() override {
