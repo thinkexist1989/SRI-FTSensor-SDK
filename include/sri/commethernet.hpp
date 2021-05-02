@@ -55,32 +55,34 @@ namespace SRI {
         }
 
         bool initialize() override {
-            _socket.connect(_endpoint); // connect to endpoint
+            try {
+                _socket.connect(_endpoint); // connect to endpoint
+                _validStatus = true;
+            }
+            catch (boost::system::system_error &error) {
+                std::cout << "SRI::ETHERNET::Error connecting to sensors: " << error.what() << std::endl;
+                _validStatus = false;
+            }
 
-            if (_socket.is_open())
-                return true;
-            else
-                return false;
+            return _validStatus;
         }
 
         size_t write(std::vector<int8_t> &buf) override {
-            if (!_socket.is_open()) {
-                _validStatus = false;
+            if (!_validStatus) {
                 return 0;
             }
             return _socket.write_some(buffer(buf));
         }
 
         size_t write(const std::string &buf) override {
-            if (!_socket.is_open()) {
-                _validStatus = false;
+            if (!_validStatus) {
                 return 0;
             }
             return _socket.write_some(buffer(&buf[0], buf.size()));
         }
 
         size_t write(char *buf, size_t n) override {
-            if (!_socket.is_open()) {
+            if (!_validStatus) {
                 _validStatus = false;
                 return 0;
             }
@@ -88,8 +90,7 @@ namespace SRI {
         }
 
         size_t read(std::vector<int8_t> &buf) override {
-            if (!_socket.is_open()) {
-                _validStatus = false;
+            if (!_validStatus) {
                 return 0;
             }
 
@@ -99,8 +100,7 @@ namespace SRI {
         }
 
         size_t read(char *buf, size_t n) override {
-            if (!_socket.is_open()) {
-                _validStatus = false;
+            if (!_validStatus) {
                 return 0;
             }
 
@@ -110,8 +110,7 @@ namespace SRI {
         }
 
         size_t read(std::string &buf) override {
-            if (!_socket.is_open()) {
-                _validStatus = false;
+            if (!_validStatus) {
                 return 0;
             }
 

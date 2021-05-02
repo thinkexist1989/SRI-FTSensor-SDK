@@ -47,12 +47,14 @@ namespace SRI {
     class FTSensor {
     public:
         explicit FTSensor(SensorComm *pcomm) : commPtr(pcomm) {
-            commPtr->initialize();
+            if(!commPtr->initialize()) {
+                std::cout << "Sensor initializing failed" << std::endl;
+            }
         }
 
         IpAddr getIpAddress() {
             commPtr->write(generateCommandBuffer(EIP, "?"));
-            while (commPtr->available() == 0) {
+            while (commPtr->available() == 0 && commPtr->isValid() == true) {
                 std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
             }
             std::vector<int8_t> recvbuf;
@@ -64,7 +66,7 @@ namespace SRI {
 
         bool setIpAddress(const IpAddr &ip) {
             commPtr->write(generateCommandBuffer(EIP, ip));
-            while (commPtr->available() == 0) {
+            while (commPtr->available() == 0  && commPtr->isValid() == true ) {
                 std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
             }
             std::vector<int8_t> recvbuf;
@@ -79,7 +81,7 @@ namespace SRI {
 
         MacAddr getMacAddress() {
             commPtr->write(generateCommandBuffer(EMAC, "?"));
-            while (commPtr->available() == 0) {
+            while (commPtr->available() == 0 && commPtr->isValid() == true) {
                 std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
             }
             std::vector<int8_t> recvbuf;
@@ -91,7 +93,7 @@ namespace SRI {
 
         bool setMacAddress(const MacAddr &mac) {
             commPtr->write(generateCommandBuffer(EMAC, mac));
-            while (commPtr->available() == 0) {
+            while (commPtr->available() == 0 && commPtr->isValid() == true) {
                 std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
             }
             std::vector<int8_t> recvbuf;
@@ -106,7 +108,7 @@ namespace SRI {
 
         GateAddr getGateWay() {
             commPtr->write(generateCommandBuffer(EGW, "?"));
-            while (commPtr->available() == 0) {
+            while (commPtr->available() == 0 && commPtr->isValid() == true) {
                 std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
             }
             std::vector<int8_t> recvbuf;
@@ -118,7 +120,7 @@ namespace SRI {
 
         bool setGateWay(const GateAddr &gate) {
             commPtr->write(generateCommandBuffer(EMAC, gate));
-            while (commPtr->available() == 0) {
+            while (commPtr->available() == 0 && commPtr->isValid() == true) {
                 std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
             }
             std::vector<int8_t> recvbuf;
@@ -133,7 +135,7 @@ namespace SRI {
 
         NetMask getNetMask() {
             commPtr->write(generateCommandBuffer(ENM, "?"));
-            while (commPtr->available() == 0) {
+            while (commPtr->available() == 0 && commPtr->isValid() == true) {
                 std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
             }
             std::vector<int8_t> recvbuf;
@@ -145,7 +147,7 @@ namespace SRI {
 
         bool setNetMask(const NetMask &mask) {
             commPtr->write(generateCommandBuffer(ENM, mask));
-            while (commPtr->available() == 0) {
+            while (commPtr->available() == 0 && commPtr->isValid() == true) {
                 std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
             }
             std::vector<int8_t> recvbuf;
@@ -160,7 +162,7 @@ namespace SRI {
 
         Gains getChannelGains() {
             commPtr->write(generateCommandBuffer(CHNAPG, "?"));
-            while (commPtr->available() == 0) {
+            while (commPtr->available() == 0 && commPtr->isValid() == true) {
                 std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
             }
             std::vector<int8_t> recvbuf;
@@ -185,7 +187,7 @@ namespace SRI {
 
         SampleRate getSamplingRate() {
             commPtr->write(generateCommandBuffer(SMPR, "?"));
-            while (commPtr->available() == 0) {
+            while (commPtr->available() == 0 && commPtr->isValid() == true) {
                 std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
             }
             std::vector<int8_t> recvbuf;
@@ -197,7 +199,7 @@ namespace SRI {
 
         bool setSamplingRate(SampleRate rate) {
             commPtr->write(generateCommandBuffer(SMPR, boost::lexical_cast<std::string>(rate)));
-            while (commPtr->available() == 0) {
+            while (commPtr->available() == 0 && commPtr->isValid() == true) {
                 std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
             }
             std::vector<int8_t> recvbuf;
@@ -212,7 +214,7 @@ namespace SRI {
 
         Voltages getExcitationVoltages() {
             commPtr->write(generateCommandBuffer(EXMV, "?"));
-            while (commPtr->available() == 0) {
+            while (commPtr->available() == 0 && commPtr->isValid() == true) {
                 std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
             }
             std::vector<int8_t> recvbuf;
@@ -237,7 +239,7 @@ namespace SRI {
 
         Sensitivities getSensorSensitivities() {
             commPtr->write(generateCommandBuffer(SENS, "?"));
-            while (commPtr->available() == 0) {
+            while (commPtr->available() == 0 && commPtr->isValid() == true) {
                 std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
             }
             std::vector<int8_t> recvbuf;
@@ -268,7 +270,7 @@ namespace SRI {
             parameters = parameters.substr(0, parameters.find_last_of(';'));
 
             commPtr->write(generateCommandBuffer(SENS, parameters));
-            while (commPtr->available() == 0) {
+            while (commPtr->available() == 0 && commPtr->isValid() == true) {
                 std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
             }
             std::vector<int8_t> recvbuf;
@@ -283,7 +285,7 @@ namespace SRI {
 
         Offsets getAmplifierZeroOffsets() {
             commPtr->write(generateCommandBuffer(AMPZ, "?"));
-            while (commPtr->available() == 0) {
+            while (commPtr->available() == 0 && commPtr->isValid() == true) {
                 std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
             }
             std::vector<int8_t> recvbuf;
@@ -313,7 +315,7 @@ namespace SRI {
 
         RTDataMode getRealTimeDataMode() {
             commPtr->write(generateCommandBuffer(SGDM, "?"));
-            while (commPtr->available() == 0) {
+            while (commPtr->available() == 0 && commPtr->isValid() == true) {
                 std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
             }
             std::vector<int8_t> recvbuf;
@@ -389,7 +391,7 @@ namespace SRI {
             parameters += boost::str(boost::format("(%s:%s)") % rtDataMode.FM % weights);
 
             commPtr->write(generateCommandBuffer(SGDM, parameters));
-            while (commPtr->available() == 0) {
+            while (commPtr->available() == 0 && commPtr->isValid() == true) {
                 std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
             }
             std::vector<int8_t> recvbuf;
@@ -404,7 +406,7 @@ namespace SRI {
 
         RTDataValid getRealTimeDataValid() {
             commPtr->write(generateCommandBuffer(DCKMD, "?"));
-            while (commPtr->available() == 0) {
+            while (commPtr->available() == 0 && commPtr->isValid() == true) {
                 std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
             }
             std::vector<int8_t> recvbuf;
@@ -416,7 +418,7 @@ namespace SRI {
 
         bool setRealTimeDataValid(const RTDataValid &rtDataValid) {
             commPtr->write(generateCommandBuffer(DCKMD, rtDataValid));
-            while (commPtr->available() == 0) {
+            while (commPtr->available() == 0 && commPtr->isValid() == true) {
                 std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
             }
             std::vector<int8_t> recvbuf;
@@ -433,7 +435,7 @@ namespace SRI {
         std::vector<RTData<T>>
         getRealTimeDataOnce(const RTDataMode &rtMode = RTDataMode(), const RTDataValid &rtValid = "SUM") {
             commPtr->write("AT+GOD\r\n");
-            while (commPtr->available() == 0) {
+            while (commPtr->available() == 0 && commPtr->isValid() == true) {
                 std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
             }
             std::vector<int8_t> recvbuf;
