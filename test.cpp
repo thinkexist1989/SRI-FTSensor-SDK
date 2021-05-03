@@ -9,6 +9,16 @@
 
 using namespace SRI;
 
+void rtDataHandler(std::vector<RTData<float>>& rtData) {
+    std::cout << "RT Data is ->  ";
+    for(int i = 0; i < rtData.size(); i++) {
+        for(int j = 0; j < 6; j++) {
+            std::cout << "Ch " << j << ": " << rtData[i][j] << "\t";
+        }
+        std::cout << std::endl;
+    }
+}
+
 int main() {
 
     SRI::CommEthernet* ce = new SRI::CommEthernet("127.0.0.1", 4008);
@@ -62,10 +72,14 @@ int main() {
       std::cout << "RT Data is: " << std::endl;
       for(int i = 0; i < rtData.size(); i++) {
           for(int j = 0; j < rtMode.channelOrder.size(); j++) {
-              std::cout << "Channel " << j << ": " << rtData[i][j] << "\t";
+              std::cout << "Ch " << j << ": " << rtData[i][j] << "\t";
           }
           std::cout << std::endl;
       }
+
+      sensor.startRealTimeDataRepeatedly<float>(&rtDataHandler, rtMode, rtDataValid);
+
+      while(1);
 
 //    std::string s = "Hello World!";
 //    std::vector<char> buf;

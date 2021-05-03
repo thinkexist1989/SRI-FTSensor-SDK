@@ -83,7 +83,6 @@ namespace SRI {
 
         size_t write(char *buf, size_t n) override {
             if (!_validStatus) {
-                _validStatus = false;
                 return 0;
             }
             return _socket.write_some(buffer(buf, n));
