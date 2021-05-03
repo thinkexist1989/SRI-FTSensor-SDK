@@ -403,7 +403,8 @@ namespace SRI {
 
             std::vector<std::string> resInString;
             try {
-                boost::split(resInString, response, boost::is_any_of(";"), boost::algorithm::token_compress_on);
+                boost::split(resInString, response, boost::is_any_of(";"),
+                             boost::algorithm::token_compress_on);
             }
             catch (boost::bad_lexical_cast &e) {
                 std::cout << "ERROR::FTSensor::getAmplifierZeroOffsets():" << e.what() << std::endl;
@@ -439,7 +440,8 @@ namespace SRI {
 
             std::vector<std::string> resInString;
             try {
-                boost::split(resInString, response, boost::is_any_of(";"), boost::algorithm::token_compress_on);
+                boost::split(resInString, response, boost::is_any_of(";"),
+                             boost::algorithm::token_compress_on);
             }
             catch (boost::bad_lexical_cast &e) {
                 std::cout << "ERROR::FTSensor::getRealTimeDataMode():" << e.what() << std::endl;
@@ -467,12 +469,14 @@ namespace SRI {
             //4. Filter model. Set to WMA. format: (WMA:1,1,2,3,4)
             std::vector<std::string> fmInString;
             boost::trim_if(resInString[3], boost::is_any_of("()"));
-            boost::split(fmInString, resInString[3], boost::is_any_of("():"), boost::algorithm::token_compress_on);
+            boost::split(fmInString, resInString[3], boost::is_any_of("():"),
+                         boost::algorithm::token_compress_on);
 
             rtDataMode.FM = fmInString[0];
             //5. WMA's relevant parameters, default 1.
             std::vector<std::string> weightsInString;
-            boost::split(weightsInString, fmInString[1], boost::is_any_of(","), boost::algorithm::token_compress_on);
+            boost::split(weightsInString, fmInString[1], boost::is_any_of(","),
+                         boost::algorithm::token_compress_on);
             rtDataMode.filterWeights.clear();
             for (auto &ws : weightsInString) {
                 auto w = std::stoi(ws);
@@ -749,58 +753,66 @@ namespace SRI {
                     paritybit = 4;
                 }
 
-                if (((uint8_t) recvbuf[0] != 0xAA) || ((uint8_t) recvbuf[1] != 0x55)) { // FRAME HEADER FAULT
-                    std::cout << "SRI::REAL-TIME-ERROR::Frame header is fault. " << std::endl;
-                    return;
-                }
+                while(!recvbuf.empty()) {
 
-                uint32_t PackageLength = recvbuf[2] * 256 + recvbuf[3];
-
-                if(PackageLength != recvbuf.size() - 4) {
-                    std::cout << "SRI::REAL-TIME-WARNING::Package Length not equal to received buf. Package Length is: "
-                                << PackageLength + 4 << " .  buf size is: " << recvbuf.size() << std::endl;
-                }
-
-                if (PackageLength > recvbuf.size() - 4) {
-                    std::cout << "SRI::REAL-TIME-ERROR::Package Length is fault. " << std::endl;
-                    return;
-                }
-
-                uint32_t dataLen = PackageLength - paritybit - 2;
-                if (dataLen != rtMode.channelOrder.size() * sizeof(T) * rtMode.PNpCH) {
-                    std::cout << "SRI::REAL-TIME-ERROR::Expected Data Length is fault. Maybe Data Mode need update "
-                              << std::endl;
-                    return;
-                }
-
-                //TODO:
-                if (rtValid == "SUM") {
-                    if ((uint8_t) recvbuf[PackageLength + 3] != getChecksum(&(recvbuf[6]), dataLen)) {
-                        std::cout << "SRI::REAL-TIME-ERROR::Checksum is incorrect. " << std::endl;
+                    if (((uint8_t) recvbuf[0] != 0xAA) || ((uint8_t) recvbuf[1] != 0x55)) { // FRAME HEADER FAULT
+                        std::cout << "SRI::REAL-TIME-ERROR::Frame header is fault. " << std::endl;
                         return;
                     }
-                } else if (rtValid == "CRC32") {
-                    uint32_t crc32 = getCRC32(&(recvbuf[6]), dataLen);
-                    int8_t *pCRC = &(recvbuf[recvbuf.size() - 4]);
-                    for (int i = 0; i < 4; i++) {
-                        if (pCRC[i] != ((int8_t *) &crc32)[i]) {
-                            std::cout << "SRI::REAL-TIME-ERROR::CRC32 is incorrect. " << std::endl;
+
+                    uint32_t PackageLength = recvbuf[2] * 256 + recvbuf[3];
+
+                    if(PackageLength != recvbuf.size() - 4) {
+                        std::cout << "SRI::REAL-TIME-WARNING::Package Length not equal to received buf. Package Length is: "
+                                    << PackageLength + 4 << " .  buf size is: " << recvbuf.size() << std::endl;
+                    }
+
+                    if (PackageLength > recvbuf.size() - 4) {
+                        std::cout << "SRI::REAL-TIME-ERROR::Package Length is fault. " << std::endl;
+                        return;
+                    }
+
+                    uint32_t dataLen = PackageLength - paritybit - 2;
+                    if (dataLen != rtMode.channelOrder.size() * sizeof(T) * rtMode.PNpCH) {
+                        std::cout << "SRI::REAL-TIME-ERROR::Expected Data Length is fault. Maybe Data Mode need update "
+                                  << std::endl;
+                        return;
+                    }
+
+                    if (rtValid == "SUM") {
+                        if ((uint8_t) recvbuf[PackageLength + 3] != getChecksum(&(recvbuf[6]), dataLen)) {
+                            std::cout << "SRI::REAL-TIME-ERROR::Checksum is incorrect. " << std::endl;
                             return;
                         }
+                    } else if (rtValid == "CRC32") {
+                        uint32_t crc32 = getCRC32(&(recvbuf[6]), dataLen);
+                        int8_t *pCRC = &(recvbuf[recvbuf.size() - 4]);
+                        for (int i = 0; i < 4; i++) {
+                            if (pCRC[i] != ((int8_t *) &crc32)[i]) {
+                                std::cout << "SRI::REAL-TIME-ERROR::CRC32 is incorrect. " << std::endl;
+                                return;
+                            }
+                        }
                     }
-                }
 
-                std::vector<RTData<T>> rtData(rtMode.PNpCH);
-                // i*nChannel*sizeof(T) + sizeof(T)*j
-                size_t nChannel = rtMode.channelOrder.size();
-                for (int i = 0; i < rtMode.PNpCH; i++) {
-                    for (int j = 0; j < nChannel; j++) {
-                        T val = *((T *) (&(recvbuf[6]) + i * nChannel * sizeof(T) + sizeof(T) * j));
-                        rtData[i][j] = val;
+                    std::vector<RTData<T>> rtData(rtMode.PNpCH);
+                    // i*nChannel*sizeof(T) + sizeof(T)*j
+                    size_t nChannel = rtMode.channelOrder.size();
+                    for (int i = 0; i < rtMode.PNpCH; i++) {
+                        for (int j = 0; j < nChannel; j++) {
+                            T val = *((T *) (&(recvbuf[6]) + i * nChannel * sizeof(T) + sizeof(T) * j));
+                            rtData[i][j] = val;
+                        }
                     }
-                }
 
-                rtDataHandler(rtData); // Callback function
+                    rtDataHandler(rtData); // Callback function
+
+                    if(PackageLength != recvbuf.size() - 4) {
+                        std::vector<int8_t>(recvbuf.begin() + PackageLength + 4, recvbuf.end()).swap(recvbuf);
+                    }
+                    else
+                        break;
+                }
             }
         }
 
