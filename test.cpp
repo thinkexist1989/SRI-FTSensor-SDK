@@ -21,7 +21,7 @@ void rtDataHandler(std::vector<RTData<float>>& rtData) {
 
 int main() {
 
-    SRI::CommEthernet* ce = new SRI::CommEthernet("127.0.0.1", 4008);
+    SRI::CommEthernet* ce = new SRI::CommEthernet("192.168.1.108", 4008);
 
     SRI::FTSensor sensor(ce);
 //    sensor.generateCommandBuffer(SRI::EIP,"?");
@@ -79,7 +79,9 @@ int main() {
 
       sensor.startRealTimeDataRepeatedly<float>(&rtDataHandler, rtMode, rtDataValid);
 
-      while(1);
+      std::this_thread::sleep_for(std::chrono::seconds(10));
+
+      sensor.stopRealTimeDataRepeatedly();
 
 //    std::string s = "Hello World!";
 //    std::vector<char> buf;

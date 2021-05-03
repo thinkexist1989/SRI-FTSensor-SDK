@@ -45,6 +45,7 @@ Shenyang Institute of Automation, Chinese Academy of Sciences.
 
 //#define BOOST_THREAD_VERSION 5 //using the v5 version of boost::thread
 #define DELAY_US 500 //tcp delay in us
+#define WAIT_TIME 20 // Max_waiting_time = WAIT_TIME * DELAY_US
 
 
 namespace SRI {
@@ -63,9 +64,13 @@ namespace SRI {
             }
 
             commPtr->write(generateCommandBuffer(EIP, "?"));
-            while (commPtr->available() == 0 && commPtr->isValid() == true) {
+
+            int waitTime = 0;
+            while (commPtr->available() == 0 && waitTime < WAIT_TIME) {
                 std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
+                waitTime++;
             }
+
             std::vector<int8_t> recvbuf;
             commPtr->read(recvbuf);
             std::string response = extractResponseBuffer(recvbuf, EIP, "?");
@@ -81,9 +86,12 @@ namespace SRI {
 
             commPtr->write(generateCommandBuffer(EIP, ip));
 
-            while (commPtr->available() == 0 && commPtr->isValid() == true) {
+            int waitTime = 0;
+            while (commPtr->available() == 0 && waitTime < WAIT_TIME) {
                 std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
+                waitTime++;
             }
+
             std::vector<int8_t> recvbuf;
             commPtr->read(recvbuf);
             std::string response = extractResponseBuffer(recvbuf, EIP, ip);
@@ -102,9 +110,12 @@ namespace SRI {
 
             commPtr->write(generateCommandBuffer(EMAC, "?"));
 
-            while (commPtr->available() == 0 && commPtr->isValid() == true) {
+            int waitTime = 0;
+            while (commPtr->available() == 0 && waitTime < WAIT_TIME) {
                 std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
+                waitTime++;
             }
+
             std::vector<int8_t> recvbuf;
             commPtr->read(recvbuf);
             std::string response = extractResponseBuffer(recvbuf, EMAC, "?");
@@ -120,9 +131,12 @@ namespace SRI {
 
             commPtr->write(generateCommandBuffer(EMAC, mac));
 
-            while (commPtr->available() == 0 && commPtr->isValid() == true) {
+            int waitTime = 0;
+            while (commPtr->available() == 0 && waitTime < WAIT_TIME) {
                 std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
+                waitTime++;
             }
+
             std::vector<int8_t> recvbuf;
             commPtr->read(recvbuf);
             std::string response = extractResponseBuffer(recvbuf, EIP, mac);
@@ -141,9 +155,12 @@ namespace SRI {
 
             commPtr->write(generateCommandBuffer(EGW, "?"));
 
-            while (commPtr->available() == 0 && commPtr->isValid() == true) {
+            int waitTime = 0;
+            while (commPtr->available() == 0 && waitTime < WAIT_TIME) {
                 std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
+                waitTime++;
             }
+
             std::vector<int8_t> recvbuf;
             commPtr->read(recvbuf);
             std::string response = extractResponseBuffer(recvbuf, EGW, "?");
@@ -720,6 +737,7 @@ namespace SRI {
                 while (commPtr->available() == 0) {
                     std::this_thread::sleep_for(std::chrono::microseconds(DELAY_US));
                 }
+
                 std::vector<int8_t> recvbuf;
                 commPtr->read(recvbuf);
 
@@ -737,7 +755,13 @@ namespace SRI {
                 }
 
                 uint32_t PackageLength = recvbuf[2] * 256 + recvbuf[3];
-                if (PackageLength != recvbuf.size() - 4) {
+
+                if(PackageLength != recvbuf.size() - 4) {
+                    std::cout << "SRI::REAL-TIME-WARNING::Package Length not equal to received buf. Package Length is: "
+                                << PackageLength + 4 << " .  buf size is: " << recvbuf.size() << std::endl;
+                }
+
+                if (PackageLength > recvbuf.size() - 4) {
                     std::cout << "SRI::REAL-TIME-ERROR::Package Length is fault. " << std::endl;
                     return;
                 }
@@ -751,7 +775,7 @@ namespace SRI {
 
                 //TODO:
                 if (rtValid == "SUM") {
-                    if ((uint8_t) recvbuf.back() != getChecksum(&(recvbuf[6]), dataLen)) {
+                    if ((uint8_t) recvbuf[PackageLength + 3] != getChecksum(&(recvbuf[6]), dataLen)) {
                         std::cout << "SRI::REAL-TIME-ERROR::Checksum is incorrect. " << std::endl;
                         return;
                     }
