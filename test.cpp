@@ -10,13 +10,15 @@
 using namespace SRI;
 
 void rtDataHandler(std::vector<RTData<float>>& rtData) {
-    std::cout << "RT Data is ->  ";
+    static int i = 0;
+    std::cout << "[" << i << "] RT Data is ->  ";
     for(int i = 0; i < rtData.size(); i++) {
         for(int j = 0; j < 6; j++) {
             std::cout << "Ch " << j << ": " << rtData[i][j] << "\t";
         }
         std::cout << std::endl;
     }
+    i++;
 }
 
 int main() {
